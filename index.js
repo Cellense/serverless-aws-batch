@@ -19,45 +19,50 @@ class ServerlessAWSBatch {
     this.provider = this.serverless.getProvider('aws');
 
     // Make sure that we add the names for our ECR, docker, and batch resources to the provider
-    _.merge(
-      this.provider.naming,
-      {
-        'getECRLogicalId': ecr.getECRLogicalId,
-        'getECRRepositoryName': ecr.getECRRepositoryName,
-        'getECRRepositoryURL': ecr.getECRRepositoryURL,
-        'getDockerImageName': docker.getDockerImageName,
-        'getBatchServiceRoleLogicalId': batchenvironment.getBatchServiceRoleLogicalId,
-        'getBatchInstanceManagementRoleLogicalId': batchenvironment.getBatchInstanceManagementRoleLogicalId,
-        'getBatchInstanceManagementProfileLogicalId': batchenvironment.getBatchInstanceManagementProfileLogicalId,
-        'getBatchSpotFleetManagementRoleLogicalId': batchenvironment.getBatchSpotFleetManagementRoleLogicalId,
-        'getBatchJobExecutionRoleLogicalId': batchtask.getBatchJobExecutionRoleLogicalId,
-        'getLambdaScheduleExecutionRoleLogicalId': batchenvironment.getLambdaScheduleExecutionRoleLogicalId,
-        'getBatchComputeEnvironmentLogicalId': batchenvironment.getBatchComputeEnvironmentLogicalId,
-        'getBatchJobQueueLogicalId': batchenvironment.getBatchJobQueueLogicalId,
-        'getBatchJobQueueName': batchenvironment.getBatchJobQueueName,
-        'getJobDefinitionLogicalId': batchtask.getJobDefinitionLogicalId
-      }
-    );
+    _.merge(this.provider.naming, {
+      getECRLogicalId: ecr.getECRLogicalId,
+      getECRRepositoryName: ecr.getECRRepositoryName,
+      getECRRepositoryURL: ecr.getECRRepositoryURL,
+      getDockerImageName: docker.getDockerImageName,
+      getBatchServiceRoleLogicalId:
+        batchenvironment.getBatchServiceRoleLogicalId,
+      getBatchInstanceManagementRoleLogicalId:
+        batchenvironment.getBatchInstanceManagementRoleLogicalId,
+      getBatchInstanceManagementProfileLogicalId:
+        batchenvironment.getBatchInstanceManagementProfileLogicalId,
+      getBatchSpotFleetManagementRoleLogicalId:
+        batchenvironment.getBatchSpotFleetManagementRoleLogicalId,
+      getBatchJobExecutionRoleLogicalId:
+        batchtask.getBatchJobExecutionRoleLogicalId,
+      getLambdaScheduleExecutionRoleLogicalId:
+        batchenvironment.getLambdaScheduleExecutionRoleLogicalId,
+      getBatchComputeEnvironmentLogicalId:
+        batchenvironment.getBatchComputeEnvironmentLogicalId,
+      getBatchJobQueueLogicalId: batchenvironment.getBatchJobQueueLogicalId,
+      getBatchJobQueueName: batchenvironment.getBatchJobQueueName,
+      getJobDefinitionLogicalId: batchtask.getJobDefinitionLogicalId,
+    });
 
     // Define inner lifecycles
-    this.commands = {}
+    this.commands = {};
 
     this.hooks = {
-      'after:package:initialize': () => BbPromise.bind(this)
-        .then(generateCoreTemplate.generateCoreTemplate),
+      'after:package:initialize': () =>
+        BbPromise.bind(this).then(generateCoreTemplate.generateCoreTemplate),
 
-      'before:package:compileFunctions': () => BbPromise.bind(this)
-        .then(batchenvironment.validateAWSBatchServerlessConfig)
-        .then(batchenvironment.generateAWSBatchTemplate)
-        .then(docker.buildDockerImage)
-        .then(batchtask.compileBatchTasks),
+      'before:package:compileFunctions': () =>
+        BbPromise.bind(this)
+          .then(batchenvironment.validateAWSBatchServerlessConfig)
+          .then(batchenvironment.generateAWSBatchTemplate)
+          .then(docker.buildDockerImages)
+          .then(batchtask.compileBatchTasks),
 
-      'before:aws:deploy:deploy:uploadArtifacts': () => BbPromise.bind(this)
-        .then(docker.pushDockerImageToECR),
+      'before:aws:deploy:deploy:uploadArtifacts': () =>
+        BbPromise.bind(this).then(docker.pushDockerImagesToECR),
 
-      'before:remove:remove': () => BbPromise.bind(this)
-        .then(awscli.deleteAllDockerImagesInECR)
-    }
+      'before:remove:remove': () =>
+        BbPromise.bind(this).then(awscli.deleteAllDockerImagesInECR),
+    };
   }
 }
 
