@@ -1,6 +1,6 @@
 {
   "name": "@cellense/serverless-aws-batch",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Serverless Framework Plugin for interacting with AWS Batch",
   "main": "index.js",
   "scripts": {
